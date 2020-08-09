@@ -10,7 +10,7 @@ export class AppController {
         return this.appService.getHello();
     }
 
-    @Get('hello')
+    @Get('hello_del')
     hello(): any {
         return { message: 'Hello, World!' }
     }
