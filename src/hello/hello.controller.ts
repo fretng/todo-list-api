@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, HttpException, HttpStatus, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Request } from 'express';
 import { HelloRegisterDto } from './hello.dto';
 import { ProfileService } from './service/profile/profile.service';
+import { ProfileGuard } from './guard/profile.guard';
+import { TimeInterceptor } from './interceptor/time.interceptor';
 
 @Controller('hello')
+@UseInterceptors(TimeInterceptor)
 export class HelloController {
     constructor(private profileService: ProfileService) {
 
@@ -42,8 +45,13 @@ export class HelloController {
     }
 
     @Get('profile/:id')
+    @UseGuards(ProfileGuard)
     getProfile(@Param('id') id: number): any {
-        return this.profileService.getOne(id);
+        let profile = this.profileService.getOne(id);
+        if (profile == null) {
+            throw new HttpException("Not found", HttpStatus.NOT_FOUND);
+        }
+        return profile;
     }
 
 }
