@@ -10,4 +10,7 @@ export class TodoList {
 
     @Column({ default: false })
     isDone: boolean;
+
+    @Column()
+    userId: number;
 }

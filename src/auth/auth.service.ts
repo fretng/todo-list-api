@@ -20,4 +20,17 @@ export class AuthService {
         let salt = bcrypt.genSaltSync(11, 'b');
         return bcrypt.hashSync(new Date().toISOString(), salt);
     }
+
+    async isTokenValid(token: string): Promise<boolean> {
+        let authToken = await this.authRepo.findOne({ token: token });
+        return authToken != null;
+    }
+
+    async getUserIdByToken(token: string): Promise<number> {
+        let authToken = await this.authRepo.findOne({ token: token });
+        if (authToken) {
+            return authToken.userId;
+        }
+        return null;
+    }
 }

@@ -11,8 +11,8 @@ export class TodoListService {
         return await this.todoRepo.save(todo);
     }
 
-    async getAll(): Promise<TodoList[]> {
-        return await this.todoRepo.find();
+    async getAll(userId: number): Promise<TodoList[]> {
+        return await this.todoRepo.find({ userId: userId });
     }
 
     async getOne(id: number): Promise<TodoList> {

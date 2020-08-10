@@ -1,10 +1,15 @@
-import { Controller, Post, Body, Get, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Param, Delete, UseGuards, Req, UseInterceptors } from '@nestjs/common';
 import { TodoListService } from './service/todo-list/todo-list.service';
 import { TodoList as TodoListEntity } from './entity/todo-list.entity';
 import { AddTodoDto, CheckTodoDto } from './todo-list.dto';
 import { DeleteResult } from 'typeorm';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { Request } from 'express';
+import { UserTokenInterceptor } from './interceptor/user-token.interceptor';
 
 @Controller('todo-list')
+@UseGuards(AuthGuard)
+@UseInterceptors(UserTokenInterceptor)
 export class TodoListController {
     constructor(private todoListService: TodoListService) {}
 
@@ -12,12 +17,14 @@ export class TodoListController {
     async addTodo(@Body() todo: AddTodoDto ): Promise<TodoListEntity> {
         let todoEntity = new TodoListEntity();
         todoEntity.message = todo.message;
+        todoEntity.userId = todo.userId;
         return await this.todoListService.addTodo(todoEntity);
     }
 
     @Get()
-    async getAll(): Promise<TodoListEntity[]> {
-        return await this.todoListService.getAll();
+    async getAll(@Req() data: Request): Promise<TodoListEntity[]> {
+        let userId = data.body.userId;
+        return await this.todoListService.getAll(userId);
     }
 
     @Put(':id')
@@ -27,6 +34,7 @@ export class TodoListController {
     ): Promise<TodoListEntity> {
         let todo = await this.todoListService.getOne(id);
         todo.isDone = data.isDone;
+        todo.userId = data.userId;
         return await this.todoListService.update(todo);
     }
 
